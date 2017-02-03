@@ -91,7 +91,7 @@ module ReactiveResource
     # keys corresponding to the belongs_to associations (since they'll
     # be in the URL anyway), so we'll try to inject them based on the
     # attributes of the object we just used.
-    def load(attributes, remove_root=false)
+    def load(attributes, remove_root=false, persisted = false)
       attributes = attributes ? attributes.stringify_keys : {}
       self.class.belongs_to_with_parents.each do |belongs_to_param|
         attributes["#{belongs_to_param}_id"] ||= prefix_options["#{belongs_to_param}_id".intern]
@@ -101,7 +101,7 @@ module ReactiveResource
         # even if we aren't actually using the association.
         @attributes["#{belongs_to_param}_id"] = attributes["#{belongs_to_param}_id"]
       end
-      super(attributes, remove_root)
+      super(attributes, remove_root, persisted)
     end
 
     # Add all of the belongs_to attributes as prefix parameters. This is

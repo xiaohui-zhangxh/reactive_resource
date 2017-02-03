@@ -1,5 +1,5 @@
 # -*- encoding: utf-8 -*-
-rails_version = ENV.key?('RAILS_VERSION') ? "~> #{ENV['RAILS_VERSION']}" : '>= 3.1'
+rails_version = ENV.key?('RAILS_VERSION') ? "~> #{ENV['RAILS_VERSION']}" : '>= 4.1'
 $:.push File.expand_path("../lib", __FILE__)
 require "reactive_resource/version"
 
