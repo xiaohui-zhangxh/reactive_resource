@@ -36,11 +36,15 @@ module ReactiveResource
       # Called when this assocation is referenced. Finds and returns
       # the target of this association.
       def resolve_relationship(object)
-        parent_params = object.prefix_options.dup
-        parent_params.delete("#{attribute}_id".intern)
+        if options[:prefix_options]
+          parent_params = object.prefix_options.slice(*Array(options[:prefix_options]))
+        else
+          parent_params = object.prefix_options.dup
+          parent_params.delete("#{attribute}_id".intern)
+        end
         associated_class.find(object.send("#{attribute}_id"), :params => parent_params)
       end
-      
+
       # Adds methods for belongs_to associations, to make dealing with
       # these objects a bit more straightforward. If the attribute name
       # is +lawyer+, it will add:
@@ -50,14 +54,14 @@ module ReactiveResource
       # [lawyer_id=] sets the lawyer id
       def add_helper_methods(klass, attribute)
         association = self
-        
-        klass.class_eval do 
+
+        klass.class_eval do
           # address.lawyer_id
           define_method("#{attribute}_id") do
             prefix_options["#{attribute}_id".intern]
             super()
           end
-          
+
           # address.lawyer_id = 3
           define_method("#{attribute}_id=") do |value|
             prefix_options["#{attribute}_id".intern] = value
@@ -70,7 +74,7 @@ module ReactiveResource
             # to add those to the 'find' call. So, let's grab all of
             # these associations, turn them into a hash of :attr_name =>
             # attr_id, and fire off the find.
-            
+
             unless instance_variable_get("@#{attribute}")
               object = association.resolve_relationship(self)
               instance_variable_set("@#{attribute}", object)
@@ -78,7 +82,7 @@ module ReactiveResource
             instance_variable_get("@#{attribute}")
           end
         end
-        
+
         # Recurse through the parent object.
         associated_class.belongs_to_associations.each do |parent_attribute|
           parent_attribute.add_helper_methods(klass, parent_attribute.attribute)
